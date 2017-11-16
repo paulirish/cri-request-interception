@@ -1,10 +1,10 @@
 {
   "name": "cri-request-interception",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Demonstrating unexpected behavior when attempting to intercept requests",
   "main": "index.js",
   "dependencies": {
     "chrome-launcher": "^0.6.0",
-    "chrome-remote-interface": "^0.24.5"
+    "chrome-remote-interface": "cyrus-and/chrome-remote-interface#3d9ef5c"
   }
 }
