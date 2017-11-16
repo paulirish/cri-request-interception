@@ -4,16 +4,17 @@ const url            = require('url');
 
 function shallNotPass(request) {
   const {pathname} = url.parse(request.url);
-  return pathname.match(/\.(css|png|svg)$/);
+  return pathname.match(/\.(css|png|svg)/);
 }
 
 async function example() {
-  // Does not work
-  const chromeInstance  = await chromeLauncher.launch({});
-  // Does work
-  //const chromeInstance  = await chromeLauncher.launch({chromeFlags: ['--headless', '--disable-gpu']});
+  // Toggle this to `true` and interception will work
+  const runAsHeadless = false;
+
+  const chromeInstance  = await chromeLauncher.launch({chromeFlags: runAsHeadless ? ['--headless'] : []});
   const remoteInterface = await CDP({port: chromeInstance.port});
   const {Network, Page} = remoteInterface;
+
   Network.requestIntercepted(({interceptionId, request}) => {
     const blocked = shallNotPass(request);
     console.log(`- ${blocked ? 'BLOCK' : 'ALLOW'} ${request.url}`);
@@ -22,11 +23,12 @@ async function example() {
       errorReason: blocked ? 'Aborted' : undefined
     });
   });
+
   await Network.enable();
   await Page.enable();
-  await Network.setRequestInterceptionEnabled({enabled: true});
+  await Network.setRequestInterception({patterns: [{urlPattern: '*'}]});
   await Network.setCacheDisabled({cacheDisabled: true});
-  await Page.navigate({url: 'https://github.com'});
+  await Page.navigate({url: 'http://perfectmotherfuckingwebsite.com/'});
   await Page.loadEventFired();
   await remoteInterface.close();
   await chromeInstance.kill();
